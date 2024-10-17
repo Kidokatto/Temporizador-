@@ -2,17 +2,12 @@ import { StatusBar } from "expo-status-bar";
 import Background from "./components/imagebackground";
 import Title from "./components/header";
 import Temporizador from "./components/Temporizador";
-import SelectorTiempo from "./components/SelectorTiempo";
 
 import {
   StyleSheet,
-  Text,
+  
   View,
-  TextInput,
-  Pressable,
-  Image,
-  Alert,
-  ImageBackground,
+
 } from "react-native";
 
 
@@ -21,7 +16,6 @@ export default function App() {
     <Background>
       <StatusBar style="light"/>
       <View style={styles.container}>
-        <Title/>
         <Temporizador/>
       </View>
     </Background>
