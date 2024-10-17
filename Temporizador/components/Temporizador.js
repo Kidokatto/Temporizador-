@@ -1,84 +1,71 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import SelectorTiempo from './SelectorTiempo';
+import SelectorTiempo from './SelectorTiempo'; // Asegúrate de que este componente esté bien implementado
 
 const Temporizador = () => {
   const [horas, setHoras] = useState(0);
   const [minutos, setMinutos] = useState(0);
   const [segundos, setSegundos] = useState(0);
-  const [enMarcha, setEnMarcha] = useState(false);
-  const intervaloRef = useRef(null);
+  const [enMarcha, setEnMarcha] = useState(false); // Controla si está corriendo
+  const [totalSegundos, setTotalSegundos] = useState(0); // Total de segundos
+  const intervaloRef = useRef(null); // Guarda la referencia al intervalo
 
-  // Calcula el tiempo total en segundos
-  const calcularTiempoTotal = () => horas * 3600 + minutos * 60 + segundos;
+  // Efecto para limpiar el intervalo al desmontar el componente
+  useEffect(() => {
+    return () => clearInterval(intervaloRef.current);
+  }, []);
 
+  const iniciarTemporizador = () => {
+    if (enMarcha) return; // Evitar múltiples intervalos
 
- // Función para iniciar el temporizador
-const iniciarTemporizador = () => {
-  if (calcularTiempoTotal() > 0 && !enMarcha) {
+    // Calcular el total de segundos
+    const total = horas * 3600 + minutos * 60 + segundos;
+    setTotalSegundos(total);
+
     setEnMarcha(true);
     intervaloRef.current = setInterval(() => {
-      setSegundos((prevSegundos) => {
-        // Si hay segundos restantes, simplemente decrementa
-        if (prevSegundos > 0) return prevSegundos - 1;
-
-        // Si no hay segundos, revisa los minutos
-        if (minutos > 0) {
-          setMinutos((prevMinutos) => prevMinutos - 1);
-          return 59; // Resetea los segundos a 59
+      setTotalSegundos((prevTotalSegundos) => {
+        if (prevTotalSegundos <= 0) {
+          clearInterval(intervaloRef.current); // Detener al llegar a 00:00:00
+          setEnMarcha(false);
+          return 0; // Asegura que el total sea 0
         }
-
-        // Si no hay minutos, revisa las horas
-        if (horas > 0) {
-          setHoras((prevHoras) => prevHoras - 1);
-          setMinutos(59); // Resetea los minutos a 59
-          return 59; // Resetea los segundos a 59
-        }
-
-        // Si se llega aquí, el tiempo se ha agotado
-        clearInterval(intervaloRef.current);
-        setEnMarcha(false);
-        return 0; // Se asegura de que los segundos queden en 0
+        return prevTotalSegundos - 1;
       });
-    }, 1000);
-  }
-};
+    }, 1000); // Cambiado a 1000 ms para que sea más realista
+  };
 
-
-  // Pausa el temporizador
   const pausarTemporizador = () => {
     clearInterval(intervaloRef.current);
     setEnMarcha(false);
   };
 
-  // Reinicia el temporizador
   const reiniciarTemporizador = () => {
-    pausarTemporizador(); 
+    clearInterval(intervaloRef.current);
     setHoras(0);
     setMinutos(0);
     setSegundos(0);
+    setTotalSegundos(0);
+    setEnMarcha(false);
   };
 
-  
-
-
-  // Limpieza del intervalo al desmontar el componente
-  useEffect(() => {
-    return () => clearInterval(intervaloRef.current);
-  }, []);
+  // Obtener horas, minutos y segundos del total
+  const mostrarHoras = Math.floor(totalSegundos / 3600);
+  const mostrarMinutos = Math.floor((totalSegundos % 3600) / 60);
+  const mostrarSegundos = totalSegundos % 60;
 
   return (
     <View style={styles.contenedor}>
       <Text style={styles.tiempo}>
-        {`${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`}
+        {`${String(mostrarHoras).padStart(2, '0')}:${String(mostrarMinutos).padStart(2, '0')}:${String(mostrarSegundos).padStart(2, '0')}`}
       </Text>
-      <SelectorTiempo 
-        horas={horas} 
-        setHoras={setHoras} 
-        minutos={minutos} 
-        setMinutos={setMinutos} 
-        segundos={segundos} 
-        setSegundos={setSegundos} 
+      <SelectorTiempo
+        horas={horas}
+        setHoras={setHoras}
+        minutos={minutos}
+        setMinutos={setMinutos}
+        segundos={segundos}
+        setSegundos={setSegundos}
       />
       <View style={styles.botones}>
         <Pressable style={styles.boton} onPress={iniciarTemporizador}>
@@ -97,10 +84,10 @@ const iniciarTemporizador = () => {
 
 const styles = StyleSheet.create({
   contenedor: {
-    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    
+    alignItems: 'center',
+    backgroundColor: '#121212',
   },
   tiempo: {
     fontSize: 90,
@@ -111,16 +98,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 50,
     width: 380,
-    marginLeft: 1,
     justifyContent: 'space-around',
-    alignItems: 'center', // Alinea verticalmente los botones dentro del contenedor
+    alignItems: 'center',
   },
   boton: {
     backgroundColor: '#6200ee',
-    width: 98, // Ancho fijo para el botón
-    height: 50, // Alto fijo para el botón
-    justifyContent: 'center', // Centra el texto verticalmente
-    alignItems: 'center', // Centra el texto horizontalmente
+    width: 98,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 10,
   },
   textoBoton: {

@@ -64,13 +64,13 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   selector: {
-    alignItems: 'center',
+    alignItems: 'center', // Alineación vertical de los elementos
   },
   label: {
     color: 'white',
     fontSize: 20,
     marginBottom: 5,
-    alignContent: 'flex-start'
+    alignContent: 'flex-start',
   },
   pickerWrapper: {
     width: 100,
